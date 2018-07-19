@@ -9,14 +9,7 @@ public class Serializer {
     public static String serialize(Object obj) throws IllegalAccessException {
         StringBuilder jsonBuilder = new StringBuilder();
         if (obj.getClass().isArray()) {
-            jsonBuilder.append("[");
-            for (Object arrObj : arrayify(obj)) {
-                jsonBuilder.append(serialize(arrObj));
-                jsonBuilder.append(",");
-            }
-            jsonBuilder.delete(jsonBuilder.length() - 1, jsonBuilder.length());
-            jsonBuilder.append("]");
-            return jsonBuilder.toString();
+            return serializeArray(obj, jsonBuilder);
         }
         else if (obj instanceof Integer) { // if the object is an integer
             quoteSurround(jsonBuilder, (String.valueOf(obj)));
@@ -28,29 +21,48 @@ public class Serializer {
                 return jsonBuilder.toString();
             }
             if (obj instanceof ArrayList<?>) {
-                jsonBuilder.append("[");
-                for (Object arrListItem : ((ArrayList) obj)) {
-                    jsonBuilder.append(serialize(arrListItem));
-                    jsonBuilder.append(",");
-                }
-                jsonBuilder.delete(jsonBuilder.length() - 1, jsonBuilder.length());
-                jsonBuilder.append("]");
-                return jsonBuilder.toString();
+                return serializeArrayList(obj, jsonBuilder);
             }
             else { // Any non-collection object ( preferably POJO )
-                jsonBuilder.append("{");
-                for (Field field : obj.getClass().getFields()) {
-                    quoteSurround(jsonBuilder, field.getName());
-                    jsonBuilder.append(":");
-                    jsonBuilder.append(serialize(field.get(obj)));
-                    jsonBuilder.append(",");
-                }
-                jsonBuilder.delete(jsonBuilder.length() - 1, jsonBuilder.length());
-                jsonBuilder.append("}");
-                return jsonBuilder.toString();
+                return serializePojo(obj, jsonBuilder);
             }
         }
         return jsonBuilder.toString();
+    }
+
+    private static String serializePojo(Object obj, StringBuilder strBuild) throws IllegalAccessException {
+        strBuild.append("{");
+        for (Field field : obj.getClass().getFields()) {
+            quoteSurround(strBuild, field.getName());
+            strBuild.append(":");
+            strBuild.append(serialize(field.get(obj)));
+            strBuild.append(",");
+        }
+        strBuild.delete(strBuild.length() - 1, strBuild.length());
+        strBuild.append("}");
+        return strBuild.toString();
+    }
+
+    private static String serializeArray(Object obj, StringBuilder strBuild) throws IllegalAccessException {
+        strBuild.append("[");
+        for (Object arrObj : arrayify(obj)) {
+            strBuild.append(serialize(arrObj));
+            strBuild.append(",");
+        }
+        strBuild.delete(strBuild.length() - 1, strBuild.length());
+        strBuild.append("]");
+        return strBuild.toString();
+    }
+
+    private static String serializeArrayList(Object obj, StringBuilder strBuild) throws IllegalAccessException {
+        strBuild.append("[");
+        for (Object arrListItem : ((ArrayList) obj)) {
+            strBuild.append(serialize(arrListItem));
+            strBuild.append(",");
+        }
+        strBuild.delete(strBuild.length() - 1, strBuild.length());
+        strBuild.append("]");
+        return strBuild.toString();
     }
 
     /**
