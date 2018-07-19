@@ -5,37 +5,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Parameter;
 
 public class Serializer {
-    public static String serializeObject(Object obj) throws IllegalAccessException {
-        Class<?> objClass = obj.getClass();
-        StringBuilder jsonBuilder = new StringBuilder();
-        jsonBuilder.append("{\n\t\"").append(objClass.getSimpleName()).append("\": {\n");
-        if (!objClass.isPrimitive()) {
-            for (Field field : objClass.getDeclaredFields()) {
-                if (!field.getType().isArray()) {
-                    if (field.get(obj) instanceof String) {
-                        jsonBuilder.append("\t\t\"").append(field.getName()).append("\":").append(field.get(obj));
-                        jsonBuilder.append("\n");
-                    } else if (field.getType().isPrimitive()) {
-                        System.out.println(field.get(obj));
-                    }
-                } else {
-                    jsonBuilder.append("\t\t\"").append(field.getName()).append("\": {\n");
-                    for (Object obje : arrayify(field.get(obj))) {
-                        //jsonBuilder.append(serializeObject(obje));
-                        //jsonBuilder.append(serializeObject(obje));
-                    }
-                }
-            }
-        }
-        else
-        {
-
-        }
-        jsonBuilder.append("\t}\n");
-        jsonBuilder.append("}");
-        return jsonBuilder.toString();
-    }
-
     public static String serialize(Object obj) throws IllegalAccessException {
         StringBuilder jsonBuilder = new StringBuilder();
         if (obj.getClass().isArray()) {
@@ -48,22 +17,18 @@ public class Serializer {
             jsonBuilder.append("]");
             return jsonBuilder.toString();
         }
-        else if (obj instanceof String) {
-            jsonBuilder.append("\"");
-            jsonBuilder.append(obj);
-            jsonBuilder.append("\"");
+        else if (obj instanceof String) { // if the object is a string
+            quoteSurround(jsonBuilder, ((String) obj));
             return jsonBuilder.toString();
         }
-        else if (obj instanceof Integer) {
-            jsonBuilder.append("\"");
-            jsonBuilder.append(obj);
-            jsonBuilder.append("\"");
+        else if (obj instanceof Integer) { // if the object is an integer
+            quoteSurround(jsonBuilder, (String.valueOf(obj)));
             return jsonBuilder.toString();
         }
-        else if (!obj.getClass().isPrimitive())  {
+        else if (!obj.getClass().isPrimitive())  { // if the object is a class
             jsonBuilder.append("{");
             for (Field field : obj.getClass().getFields()) {
-                jsonBuilder.append(field.getName());
+                quoteSurround(jsonBuilder, field.getName());
                 jsonBuilder.append(":");
                 jsonBuilder.append(serialize(field.get(obj)));
                 jsonBuilder.append(",");
@@ -86,5 +51,16 @@ public class Serializer {
             tempArr[i] = Array.get(obj, i);
         }
         return tempArr;
+    }
+
+    /**
+     * WARNING: This method has sideeffect : modify StringBuilder object strBuild points to
+     * @param strBuild Stringbuilder to modify
+     * @param surroundee string to surround with quotes
+     */
+    private static void quoteSurround(StringBuilder strBuild, String surroundee) {
+        strBuild.append("\"");
+        strBuild.append(surroundee);
+        strBuild.append("\"");
     }
 }

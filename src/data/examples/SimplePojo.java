@@ -1,5 +1,7 @@
 package data.examples;
 
+import java.util.ArrayList;
+
 public class SimplePojo {
     public String name;
     public int age;
