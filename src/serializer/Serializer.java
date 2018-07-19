@@ -3,6 +3,7 @@ package serializer;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.Parameter;
+import java.util.ArrayList;
 
 public class Serializer {
     public static String serialize(Object obj) throws IllegalAccessException {
@@ -17,25 +18,37 @@ public class Serializer {
             jsonBuilder.append("]");
             return jsonBuilder.toString();
         }
-        else if (obj instanceof String) { // if the object is a string
-            quoteSurround(jsonBuilder, ((String) obj));
-            return jsonBuilder.toString();
-        }
         else if (obj instanceof Integer) { // if the object is an integer
             quoteSurround(jsonBuilder, (String.valueOf(obj)));
             return jsonBuilder.toString();
         }
         else if (!obj.getClass().isPrimitive())  { // if the object is a class
-            jsonBuilder.append("{");
-            for (Field field : obj.getClass().getFields()) {
-                quoteSurround(jsonBuilder, field.getName());
-                jsonBuilder.append(":");
-                jsonBuilder.append(serialize(field.get(obj)));
-                jsonBuilder.append(",");
+            if (obj instanceof String) { // if the object is a string
+                quoteSurround(jsonBuilder, ((String) obj));
+                return jsonBuilder.toString();
             }
-            jsonBuilder.delete(jsonBuilder.length() - 1, jsonBuilder.length());
-            jsonBuilder.append("}");
-            return jsonBuilder.toString();
+            if (obj instanceof ArrayList<?>) {
+                jsonBuilder.append("[");
+                for (Object arrListItem : ((ArrayList) obj)) {
+                    jsonBuilder.append(serialize(arrListItem));
+                    jsonBuilder.append(",");
+                }
+                jsonBuilder.delete(jsonBuilder.length() - 1, jsonBuilder.length());
+                jsonBuilder.append("]");
+                return jsonBuilder.toString();
+            }
+            else { // Any non-collection object ( preferably POJO )
+                jsonBuilder.append("{");
+                for (Field field : obj.getClass().getFields()) {
+                    quoteSurround(jsonBuilder, field.getName());
+                    jsonBuilder.append(":");
+                    jsonBuilder.append(serialize(field.get(obj)));
+                    jsonBuilder.append(",");
+                }
+                jsonBuilder.delete(jsonBuilder.length() - 1, jsonBuilder.length());
+                jsonBuilder.append("}");
+                return jsonBuilder.toString();
+            }
         }
         return jsonBuilder.toString();
     }
