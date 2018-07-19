@@ -22,3 +22,5 @@ Convert from POJO (Plain-Old-Java-Object) to a Json-formatted string
 ```
 Strings and primitive types are the endpoints ( where there are no recursive calls in my algorithm)
 
+* For every endpoint, handle that value (example: if it's a string append the string and return)
+* For every non-endpoint, recurse for each containing value ( example: array, recurse and append "," to the tail of the recursion )
