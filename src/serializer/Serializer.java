@@ -2,10 +2,17 @@ package serializer;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
-import java.lang.reflect.Parameter;
 import java.util.ArrayList;
 
+/**
+ *
+ */
 public class Serializer {
+    /**
+     * @param obj : An object that will be serialized into a Json String
+     * @return String representing obj being serialized
+     * @throws IllegalAccessException
+     */
     public static String serialize(Object obj) throws IllegalAccessException {
         StringBuilder jsonBuilder = new StringBuilder();
         if (obj.getClass().isArray()) {
@@ -65,11 +72,10 @@ public class Serializer {
         return strBuild.toString();
     }
 
-    /**
-     * PRECONDITION: obj param needs to be categorized as an array in some way
-     * @param obj an object that can be divided into indices
-     * @return the original obj recognized as an array
-     */
+    private static String serializeMap(Object obj, StringBuilder strBuild) {
+        return "";
+    }
+
     private static Object[] arrayify(Object obj) {
         Object[] tempArr = new Object[Array.getLength(obj)];
         for (int i = 0; i < tempArr.length; i++) {
@@ -78,11 +84,6 @@ public class Serializer {
         return tempArr;
     }
 
-    /**
-     * WARNING: This method has sideeffect : modify StringBuilder object strBuild points to
-     * @param strBuild Stringbuilder to modify
-     * @param surroundee string to surround with quotes
-     */
     private static void quoteSurround(StringBuilder strBuild, String surroundee) {
         strBuild.append("\"");
         strBuild.append(surroundee);

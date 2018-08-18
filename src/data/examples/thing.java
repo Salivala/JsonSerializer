@@ -4,7 +4,7 @@ public class thing {
     public int n;
 
     public thing() {
-        this.r = "thign";
+        this.r = "thigu";
         this.n = 23;
     }
 }
